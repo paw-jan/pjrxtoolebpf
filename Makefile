@@ -40,8 +40,9 @@ BPF_CFLAGS := -O2 -g -target bpf -nostdinc -I$(SRC_DIR) $(BPF_DEFINE) \
     -I$(KDIR)/tools/bpf/resolve_btfids/libbpf/include
 
 
-LIBBPF_CFLAGS := $(shell pkg-config --cflags libbpf)
-LIBBPF_LDFLAGS := $(shell pkg-config --libs libbpf) -lelf -lz
+LIBBPF_CFLAGS := $(shell pkg-config --cflags libbpf libevdev)
+LIBBPF_LDFLAGS := $(shell pkg-config --libs libbpf libevdev) -lelf -lz
+LIBS_USER := -levdev
 
 # === Targets ===
 .PHONY: all clean dirs
@@ -65,8 +66,8 @@ $(BPFSKEL): $(BPFOBJ)
 	$(BPFTool) gen skeleton $< > $@
 
 # --- build userspace ---
-$(USERPROG): $(USERPROG_SRC) $(BPFSKEL) src/event_logger.cpp
-	$(CXX) -O2 -I$(BUILD_DIR) -Isrc $^ -o $@ $(LIBBPF_CFLAGS) $(LIBBPF_LDFLAGS)
+$(USERPROG): $(USERPROG_SRC) $(BPFSKEL) src/event_logger.cpp src/event_mapper.cpp
+	$(CXX) -O2 -I$(BUILD_DIR) -Isrc $^ -o $@ $(LIBBPF_CFLAGS) $(LIBBPF_LDFLAGS) $(LIBS_USER)
 
 clean:
 	rm -rf $(BUILD_DIR) $(SRC_DIR)/vmlinux.h

@@ -5,6 +5,8 @@
 #include <sstream>
 #include <iostream>
 
+#include <libevdev/libevdev.h>
+
 #include "event_logger.h"
 
 using namespace std;
@@ -92,16 +94,9 @@ EventLogger::~EventLogger()
 
 void EventLogger::logEvent(const event* ev)
 {
+    string line = em.mapEvent(ev);
     
-    std::ostringstream oss;
-    oss << ev->ts_ns << " "
-    << ev->code << " "
-    << ev->value << " "
-    << ev->comm;
-    
-    std::string line = oss.str();
-    
-    if (1==1)
+    if (1 == 0)
     {
         cout << "EV:  "<< line << std::endl;
     }

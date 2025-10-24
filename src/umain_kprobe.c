@@ -30,7 +30,7 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
     strftime(buf, sizeof(buf), "%F %T", &tm);
 
     const char *state = (e->value == 1) ? "DOWN" : (e->value == 0) ? "UP" : "HOLD";
-    printf("%s.%09ld code=%u %s comm=%s\n", buf, ns, e->code, state, e->comm);
+    // printf("%s.%09ld code=%u %s comm=%s\n", buf, ns, e->code, state, e->comm);
 
     eventlogger.logEvent(e);
     return 0;
@@ -41,8 +41,6 @@ int main(void)
     struct ebpf_kprobe_input *skel = NULL;
     struct ring_buffer *rb = NULL;
     int err;
-
-
 
     signal(SIGINT, sig_handler);
     signal(SIGTERM, sig_handler);
@@ -68,7 +66,7 @@ int main(void)
         goto cleanup;
     }
 
-    printf("Listening for keyboard events via kprobe/input_event... Ctrl-C to exit.\n");
+    printf("[pjxxx] [ebpf] kprobe/input_event ... \n");
 
     while (!exiting)
     {

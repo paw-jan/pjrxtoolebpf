@@ -7,6 +7,7 @@
 #include <filesystem>
 
 #include "ebpf_kprobe_input_uspace.h"
+#include "event_mapper.h"
 
 
 class EventLogger
@@ -19,4 +20,5 @@ public:
 
 private:
     std::ofstream file;
+    EventMapper em;
 };
