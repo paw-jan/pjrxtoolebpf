@@ -1,16 +1,12 @@
-// ebpf_input_kprobe.c
-#include <linux/bpf.h>
+// ebpf_kprobe_input.c
+#include "vmlinux.h"
 #include <bpf/bpf_helpers.h>
+#include <bpf/bpf_tracing.h>
+
+#include "ebpf_kprobe_input_kspace.h"
 
 char LICENSE[] SEC("license") = "GPL";
 
-struct event
-{
-    __u64 ts_ns;
-    __u32 code;
-    __s32 value;
-    char comm[16];
-};
 
 struct
 {

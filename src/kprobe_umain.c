@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <bpf/libbpf.h>
 #include "ebpf_kprobe_input.skel.h"
+#include "ebpf_kprobe_input_uspace.h"
 
 static volatile bool exiting = false;
 
@@ -31,21 +32,21 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
 
 int main(void)
 {
-    struct ebpf_kprobe_input_bpf *skel = NULL;
+    struct ebpf_kprobe_input *skel = NULL;
     struct ring_buffer *rb = NULL;
     int err;
 
     signal(SIGINT, sig_handler);
     signal(SIGTERM, sig_handler);
 
-    skel = ebpf_kprobe_input_bpf__open_and_load();
+    skel = ebpf_kprobe_input__open_and_load();
     if (!skel)
     {
         fprintf(stderr, "failed to open/load skeleton\n");
         return 1;
     }
 
-    err = ebpf_kprobe_input_bpf__attach(skel);
+    err = ebpf_kprobe_input__attach(skel);
     if (err)
     {
         fprintf(stderr, "failed to attach kprobe: %d\n", err);
@@ -75,6 +76,6 @@ int main(void)
 
 cleanup:
     ring_buffer__free(rb);
-    ebpf_kprobe_input_bpf__destroy(skel);
+    ebpf_kprobe_input__destroy(skel);
     return 0;
 }
