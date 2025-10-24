@@ -4,12 +4,12 @@ BUILD_DIR := build
 
 # === Tools ===
 CLANG := clang
-GCC := gcc
+GCC := g++
 BPFOBJ := $(BUILD_DIR)/ebpf_kprobe_input.o
 BPFSKEL := $(BUILD_DIR)/ebpf_kprobe_input.skel.h
 BPFPROG := $(SRC_DIR)/ebpf_kprobe_input.c
-USERPROG_SRC := $(SRC_DIR)/kprobe_umain.c
-USERPROG := $(BUILD_DIR)/kprobe_umain
+USERPROG_SRC := $(SRC_DIR)/umain_kprobe.c
+USERPROG := $(BUILD_DIR)/umain_kprobe
 BPFTool := bpftool
 
 # === Kernel headers (from host) ===
@@ -65,8 +65,8 @@ $(BPFSKEL): $(BPFOBJ)
 	$(BPFTool) gen skeleton $< > $@
 
 # --- build userspace ---
-$(USERPROG): $(USERPROG_SRC) $(BPFSKEL)
-	$(GCC) -O2 -I$(BUILD_DIR) $< -o $@ $(LIBBPF_CFLAGS) $(LIBBPF_LDFLAGS)
+$(USERPROG): $(USERPROG_SRC) $(BPFSKEL) src/event_logger.cpp
+	$(CXX) -O2 -I$(BUILD_DIR) -Isrc $^ -o $@ $(LIBBPF_CFLAGS) $(LIBBPF_LDFLAGS)
 
 clean:
 	rm -rf $(BUILD_DIR) $(SRC_DIR)/vmlinux.h

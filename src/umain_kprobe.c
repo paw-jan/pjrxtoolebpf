@@ -8,7 +8,11 @@
 #include "ebpf_kprobe_input.skel.h"
 #include "ebpf_kprobe_input_uspace.h"
 
+#include "event_logger.h"
+
 static volatile bool exiting = false;
+
+static EventLogger eventlogger;
 
 static void sig_handler(int signo)
 {
@@ -17,7 +21,7 @@ static void sig_handler(int signo)
 
 static int handle_event(void *ctx, void *data, size_t data_sz)
 {
-    struct event *e = data;
+    struct event *e = reinterpret_cast<event*>(data);
     time_t s = e->ts_ns / 1000000000ULL;
     long ns = e->ts_ns % 1000000000ULL;
     char buf[64];
@@ -27,6 +31,8 @@ static int handle_event(void *ctx, void *data, size_t data_sz)
 
     const char *state = (e->value == 1) ? "DOWN" : (e->value == 0) ? "UP" : "HOLD";
     printf("%s.%09ld code=%u %s comm=%s\n", buf, ns, e->code, state, e->comm);
+
+    eventlogger.logEvent(e);
     return 0;
 }
 
@@ -35,6 +41,8 @@ int main(void)
     struct ebpf_kprobe_input *skel = NULL;
     struct ring_buffer *rb = NULL;
     int err;
+
+
 
     signal(SIGINT, sig_handler);
     signal(SIGTERM, sig_handler);
